@@ -1,0 +1,22 @@
+td
+{
+    overflow: auto;
+}
+
+#tcontainer
+{
+    position: absolute;
+    overflow-x:auto;
+}
+
+.messageFieldRed
+{
+    color: red;
+    opacity: 0.3;
+}
+
+.messageFieldGreen
+{
+    color: green;
+    opacity: 0.3;
+}

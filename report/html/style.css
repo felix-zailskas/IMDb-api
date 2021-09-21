@@ -1,0 +1,124 @@
+#uni {
+    text-align: center;
+    size: 20 px;
+    margin-bottom: 6%;
+}
+
+header {
+    margin-bottom: 10%;
+}
+
+hr {
+    width: 60%;
+}
+
+
+#title {
+    text-align: center;
+}
+
+#logo {
+    margin-top: 15%;
+    margin-bottom: 15%;
+    width: 65%;
+    height: 65%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#listAuthors {
+    line-height: 220%;
+    margin-top: 20%;
+    margin-bottom: 20%;
+    margin-left: 20%;
+}
+
+.tab { 
+    display:inline-block; 
+    margin-left: 32%; 
+}
+
+.fullDiv{
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+/* #toc_container {
+    margin-left: 5%;
+    margin-top: 10%;
+} */
+.text {
+    text-align: justify;
+    width: 70%;
+}
+
+#toc_title{
+    font-weight: bold;
+}
+
+
+#ulUC {
+    width: 70%;
+    font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: rgb(255, 255, 255); 
+  background-color: rgb(44, 43, 49);
+}
+
+#cardB{
+    display: inline-block;
+    width: 120%;
+    height:100%;
+    /* width: 90%; */
+    font-family: "Raleway", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: rgb(255, 255, 255); 
+  background-color: rgb(44, 43, 49);
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}
+
+#colps{
+    
+}

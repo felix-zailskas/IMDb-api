@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Project Report</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="skeleton.css" />
+    <link rel="stylesheet" href="materialize/css/materialize.css" />
+  </head>
+
+  <body>
+    <header>
+      <h2 id="uni">University of Groningen</h2>
+      <hr />
+      <h1 id="title">Project Report</h1>
+      <div id="authors">
+        <p id="listAuthors">
+          Authors:
+          <br />
+          Rares DOBRE (s4051203)<br />
+          Adrian Segura LORENTE (s3913007) <span class="tab">Lecturer:</span
+          ><br />
+          Daniel SKALA (s3953602) <span class="tab">dr. V.Andrikopoulos</span
+          ><br />
+          Felix ZAILSKAS (s3918270)<br />
+          Daniel BAXAN (s4066480)<br />
+        </p>
+      </div>
+      <hr />
+      <img src="./figures/rugLogo.png" id="logo" />
+    </header>
+
+    <div class="fullDiv">
+      <div id="toc_container">
+        <h4 class="toc_title">Contents</h4>
+        <ul class="toc_list">
+          <li><a href="#Introduction">1 Introduction</a></li>
+          <li>
+            <a href="#App_implementation">2 Application Implementation</a>
+          </li>
+          <li><a href="#Application_Technologies">3 Application Technologies</a></li>
+          <li><a href="#Model">4 Model</a></li>
+          <li><a href="#API_design">5 API Design</a></li>
+          <ul>
+            <li><a href="#API_design_1">5.1 Movie</a></li>
+            <li><a href="#API_design_2">5.2 Actors</a></li>
+            <li><a href="#API_design_3">5.3 Genres</a></li>
+          </ul>
+          <a href="#Example_requests">6 Example Requests</a>
+          <ul>
+            <li><a href="#Example_requests_1">6.1 Create a Movie</a></li>
+            <li><a href="#Example_requests_2">6.2 Update a Movie</a></li>
+            <li><a href="#Example_requests_3">6.3 Delete a Movie</a></li>
+            <li><a href="#Example_requests_4">6.4 Retrieve all Movies</a></li>
+          </ul>
+          <li><a href="#Error_handling">7 Error handling</a></li>
+          <li><a href="#Collections">8 Collections</a></li>
+          <li><a href="#UI_implementation">9 UI Implementation</a></li>
+          <li><a href="#Extra_functionality">10 Extra Functionality</a></li>
+          <li><a href="#Milestone_outcomes">11 Milestone Outcomes</a></li>
+          <ul>
+            <li><a href="#Milestone_outcomes_1">11.1 M1 Outcome</a></li>
+            <li><a href="#Milestone_outcomes_2">11.2 M2 Outcome</a></li>
+            <li><a href="#Milestone_outcomes_3">11.3 M3 Outcome</a></li>
+          </ul>
+          <li><a href="#Distribution_of_work">12 Distribution of work</a></li>
+          <li><a href="#Deployment">13 Deployment</a></li>
+          <li><a href="#Changelog">14 Changelog</a></li>
+        </ul>
+      </div>
+
+      <section id="Introduction">
+        <h2>Introduction</h2>
+        <p class="text">
+          In this section we describe the feedback we got for each milestone and
+          improvements we made based on that feedback. We have designed an Web
+          application which allows the user to manipulate and view data from the
+          IMDB movie dataset. Our application allows the user to use diverse
+          tools which allow filtering of specific movies, actors, genres and
+          also provide statistics for the movies. The user is able also able to
+          manipulate data by adding, updating and deleting movies from the
+          system.
+        </p>
+      </section>
+
+      <section id="App_implementation">
+        <h2>Application Implementation</h2>
+        <p class="text">
+          This section describes the set of instructions that a user needs to
+          follow in order to run the current Web application. For the
+          development of this application we have decided to go with the MEVN
+          (MongoDB, Express, Vue, Node) stack. We use MongoDB as a noSQL
+          database since it allows us to manipulate collections of entities,
+          which in our case are the movie, actors and genres. For the back-end
+          framework we use Express because of it's accessible functionality. For
+          the front-end part our decision was to use the Vue.js framework, since
+          it allows a simple implementation of all the required functionality in
+          comparison with Angular and React technologies. Since we are using
+          java script for the back-end we also used the Node.js as the runtime
+          environment and the npm (node packet manager) for handling all the
+          node-modules that were required in the development/production version
+          of the program. The communication between the client and the server is
+          done via the concept of the REST API. This means that the server sends
+          the user only the requested data and then the client side handles that
+          information and displays it in a proper way. A further explanation
+          about the models, API requests and UI implementation will be discussed
+          in the following sections.
+        </p>
+        <h3>User requirements</h3>
+        <p class="text">
+          The following requirements were made for the application.<br />
+          * It is worth to mention that the preparation of the data objects will
+          be made on the back-end side of the web application and the front-end
+          will deal only with the display of the obtained objects.
+        </p>
+        <ol id="ulUC">
+          <li class="collection-item">
+            Retrieve all actors in the dataset, optionally filtered by (full)
+            name; In the case the user does not want to filter this is done with
+            a GET request from the client to the server of the form /api/actor.
+            Otherwise we use the the GET request of the form /api/actor/{name}.
+          </li>
+          <li class="collection-item">
+            Retrieve all available information about a specific movie identified
+            by its unique IMDB URL or by its (non-unique) title; This is done
+            with a GET request from the client to the server of the form
+            /api/movie/{URL} in the case if the user wants to identify the movie
+            by URL. In the case the user wants to find the movie by it's title
+            then the GET request of form /api/movie/{title}.
+          </li>
+          <li class="collection-item">
+            Retrieve all movies by a specific actor or director identified by
+            name and/or in specific year; This is done with a GET request from
+            the client to the server of the form /api/movie/{name} with the
+            corresponding query parameters.
+          </li>
+          <li class="collection-item">
+            Retrieve all movie genres for a specific actor or director,
+            optionally sorted by year (ascending or descending); This is done
+            with a GET request from the client to the server of the form
+            /api/genre/{name} with the corresponding query parameters. For the
+            ascending/descending ordering we will have an additional query
+            parameter which will indicate in which ordering
+            the application should return the result. The User will be able to
+            select a specific order by a using drop-down menu.
+          </li>
+          <li class="collection-item">
+            Retrieve an ordering of the movies ranked by their popularity (user
+            rating) from more to less popular, with the possibility to subset
+            this order; This is done via a GET request from the client to the
+            server of the form /api/movie. To subset them, the desired
+            specifications will be passed through query parameters.
+          </li>
+          <li class="collection-item">
+            Retrieve an ordering of movies in a specific year ranked and
+            subsetted by popularity as above; This is done with a GET request
+            from the client to the server of the form /api/movie/. To specify
+            the desired year and the subset, query parameters will be used.
+          </li>
+          <li class="collection-item">
+            Retrieve descriptive statistics (mean, median, standard deviation)
+            for the popularity of all movies for a particular actor with an
+            optional filter by year; This is done by a GET request from the
+            client to the server of the form /api/statistics/{name}.
+          </li>
+        </ol>
+      </section>
+      <h2>Application Technologies</h2>
+      <section id="Application_Technologies">
+          This section covers the different technologies used to implement the
+  restful API,together with a description  for each element and the given
+               usage in the API.
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Type</th>
+                <th>Usage in API</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td>Node.js</td>
+                <td>
+                  Runtime environment
+                  serverside
+                </td>
+                <td>Runtime environment</td>
+            
+                <td>Used across the whole backend of the API</td>
+              </tr>
+              <tr>
+                <td>MongoDB</td>
+                <td>NoSQL database system used</td>
+                <td>Database System</td>
+                <td>Used to store the data used by the API</td>
+              </tr>
+          
+            <tr>
+              <td>Express</td>
+              <td>Backend web application framework for Node.js</td>
+              <td>
+                Framework and Package
+              </td>
+              <td>Used in the implementation of the API in general to speed up development</td>
+            </tr>
+            
+            <tr>
+              <td>Mongoose</td>
+              <td>Object data modeling library for MongoDBand Node.js</td>
+              <td>
+                Library
+              </td>
+              <td>
+                Used to perform queries to the NoSQL database
+              </td>
+            </tr>
+            
+            <tr>
+              <td>CORS</td>
+              <td>HTTP-header based mechanism that allows the server to indicate any other origins than itself</td>
+              <td>
+                Package
+              </td>
+              <td>
+                Used in the API to allow the indication of other origins outside of the server
+              </td>
+            </tr>
+            
+            <tr>
+              <td>body-parser</td>
+              <td>Parsing middleware used to parse request bodies, facilitating the access to the request and its information</td>
+              <td>
+                Package
+              </td>
+              <td>
+                Used extensively to access the body of requests
+              </td>
+            </tr>
+            
+            <tr>
+              <td>nanoid</td>
+              <td>Compact unique string identifiers generator</td>
+              <td>
+                Package
+              </td>
+              <td>
+                Used to generate identifiers for newly created movies for thedatabase
+              </td>
+            </tr>
+            
+            <tr>
+              <td>Quickchart</td>
+              <td>Chart image generator</td>
+              <td>
+                External API
+              </td>
+              <td>
+                Used to generate charts from the statistics generated in our API
+              </td>
+            </tr>
+            
+            <tr>
+              <td>Papaparse</td>
+              <td>JSON to CSV and CSV to JSON converter</td>
+              <td>
+                Package
+              </td>
+              <td>
+                     Used to convert json content to csv from queries
+              </td>
+            </tr>
+            <tr>
+              <td>Axios</td>
+              <td>Promise based HTTP client for the browser and node.js</td>
+              <td>Package</td>
+              <td>Used to send requests to third party API</td>
+            </tr>
+            <tr>
+              <td>Morgan</td>
+              <td>HTTP request loggermiddleware for node.js</td>
+              <td>Package</td>
+              <td>Used to display HTTPrequest log messages inthe terminal</td>
+            </tr>
+            <tr>
+              <td>Bootstrap-vue</td>
+              <td>A framework for building responsive websites</td>
+              <td>Framework</td>
+              <td>Used in UI components in frontend</td>
+            </tr>
+            <tr>
+              <td>Material Design for Bootstrap</td>
+              <td>UI KIT for building responsive websites</td>
+              <td>Plugin</td>
+              <td>Used in the html report</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+      <section id="Model">
+        <h2>Model</h2>
+        <p class="text">
+          This section describes all the model entities we have used during the
+          development of our application.
+        </p>
+        <h3>Movies</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Title</td>
+              <td>Name of the movie</td>
+            </tr>
+            <tr>
+              <td>Rating</td>
+              <td>Rating of the movie</td>
+            </tr>
+            <tr>
+              <td>Year</td>
+              <td>Release year of the movie</td>
+            </tr>
+            <tr>
+              <td>User rating</td>
+              <td>Rating of the movie based on the user</td>
+            </tr>
+            <tr>
+              <td>Votes</td>
+              <td>Number of votes</td>
+            </tr>
+            <tr>
+              <td>Metascore</td>
+              <td>Metascore of the movie</td>
+            </tr>
+            <tr>
+              <td>IMG URL</td>
+              <td>URL of the image of the movie</td>
+            </tr>
+            <tr>
+              <td>Countries</td>
+              <td>Countries in which the movie was released</td>
+            </tr>
+            <tr>
+              <td>Languages</td>
+              <td>Languages in which the movie was released</td>
+            </tr>
+            <tr>
+              <td>Actors</td>
+              <td>Actors involved in the movie</td>
+            </tr>
+            <tr>
+              <td>Genre</td>
+              <td>Genre of the movie</td>
+            </tr>
+            <tr>
+              <td>Tagline</td>
+              <td>Short description of the movie</td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>Description of the movie</td>
+            </tr>
+            <tr>
+              <td>Directors</td>
+              <td>List of directors that directed a movie</td>
+            </tr>
+            <tr>
+              <td>Runtime</td>
+              <td>Length of the movie (in minutes)</td>
+            </tr>
+            <tr>
+              <td>IMDB URL</td>
+              <td>IMDB URL of the movie</td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Actors</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>Name</td>
+              <td>Full name of the actor</td>
+            </tr>
+            <tr>
+              <td>Movies</td>
+              <td>Movies the actor stars in</td>
+            </tr>
+          </tbody>
+        </table>
+        <h2>Genres</h2>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Name</td>
+              <td>Name of the genre</td>
+            </tr>
+            <tr>
+              <td>Movies</td>
+              <td>Movies of that genre</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="API_design">
+        <h2>API Design</h2>
+        <p class="text">
+          Here we represent all the API requests and entities used in the
+          back-end. It is worth to mention that all GET requests can be sorted
+          and limited by the release year. The user is free to choose the
+          desired representation of the data. Each API endpoint will support
+          both CSV and JSON representations, and when none is selected, the JSON
+          (default) will be chosen.
+        </p>
+
+        <h3 id="API_design_1">Movies</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Request</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Responses</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>/api/movies/</td>
+              <td>GET</td>
+              <td>
+                request all movies with the possibility to sort them <br />based
+                on popularity and to subset them (either through the
+                quantity,<br />
+                or through the year), which will be provided through query
+                parameters
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/url/{URL}</td>
+              <td>GET</td>
+              <td>request a specific movie by its url</td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/title/{title}</td>
+              <td>GET</td>
+              <td>get the movie by title</td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/name/{name}</td>
+              <td>GET</td>
+              <td>
+                get the movie genres by actor's/director's name<br />The role of
+                the corresponding person and the year will be <br />specified
+                through query parameters
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/random/</td>
+              <td>GET</td>
+              <td>
+                request a number of random movies <br />with the possibility to select the number of movies<br />
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies</td>
+              <td>POST</td>
+              <td>create a new movie</td>
+              <td>Success: 200<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/url/{URL}</td>
+              <td>DELETE</td>
+              <td>delete a move by it's unique IMDB URL</td>
+              <td>Success: 202<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/url/{URL}</td>
+              <td>PUT</td>
+              <td>update info above a movie by it's unique IMDB URL</td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/movies/rating/{rating}</td>
+              <td>GET</td>
+              <td>
+                Get all movies of an specific user rating with the posibility to select the number of movies.<br />
+                Amount of movies specified by query parameter "amount"
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 id="API_design_2">Actors</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Request</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Responses</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>/api/actors</td>
+              <td>GET</td>
+              <td>request all actors from the server</td>
+              <td>Success: 200<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/actors/{name}</td>
+              <td>GET</td>
+              <td>
+                request one or more actors by their name <br />
+                we use string matching in order to get all the valid results
+                from the DB
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 id="API_design_3">Genres</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Request</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Responses</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>/api/genres</td>
+              <td>GET</td>
+              <td>request all genres from the server</td>
+              <td>Success: 200<br />Server error: 500</td>
+            </tr>
+            <tr>
+              <td>/api/genres/{name}</td>
+              <td>GET</td>
+              <td>
+                request one or more genres by the name of the actor/ director<br />
+                we use string matching in order to get all the valid results
+                from the DB<br />The role of the corresponding person and the
+                year will be specified <br />through query parameters
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3 id="API_design_3">Statistics</h3>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Request</th>
+              <th>Type</th>
+              <th>Description</th>
+              <th>Responses</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>/api/statistics/{name}</td>
+              <td>GET</td>
+              <td>
+                request the statistics of movies of an actor using that actors
+                name<br />The year will be specified through query parameters
+              </td>
+              <td>Success: 200<br />Not found: 404<br />Server error: 500</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="Example_requests">
+        <h2>Example Requests</h2>
+        <p class="text">
+          This section contains schema representations of request in order to
+          have a better understanding of the application work-flow. Here we
+          discuss an example of each CRUD operation implemented in our program.
+        </p>
+
+        <div class="row">
+          <div class="col s12 m7">
+            <style></style>
+            <div class="card large" id="cardB">
+              <div class="card-image">
+                <img src="./figures/createUC.png" />
+              </div>
+              <div class="card-content">
+                <span class="card-title">Create Movie</span>
+                <p>
+                  Using this request, the user can create add a movie to the
+                  database.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col s12 m7">
+            <div class="card large" id="cardB">
+              <div class="card-image">
+                <img src="./figures/updateUC.png" />
+              </div>
+              <div class="card-content">
+                <span class="card-title">Update Movie</span>
+                <p>
+                  This example describes a use case for updating data of an
+                  existing movie inthe Database. After updating, the movie will
+                  exist with the same id and allindicated fields will have teh
+                  updated values. Movie is identified with its uniqueIMDB URL
+                  which is inputted from the user.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col s12 m7">
+            <div class="card large" id="cardB">
+              <div class="card-image">
+                <img src="./figures/DeleteUC.png" />
+              </div>
+              <div class="card-content">
+                <span class="card-title">Delete Movie</span>
+                <p>
+                  This example describes a use case for deleting a specific
+                  movie from the Database.After deletion, the movie and all its
+                  components will not be present in thedatabase. Movie is
+                  identified with its unique IMDB URL which is inputtedfrom the
+                  user.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col s12 m7">
+            <div class="card large" id="cardB">
+              <div class="card-image">
+                <img src="./figures/Graph1.jpeg" />
+              </div>
+              <div class="card-content">
+                <span class="card-title">Get all movies</span>
+                <p>
+                  Through this request to the api, the user gets back all the
+                  movies contianed in the database.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col s12 m7">
+            <div class="card large" id="cardB">
+              <div class="card-image">
+                <img src="./figures/Graph2.jpeg" />
+              </div>
+              <div class="card-content">
+                <span class="card-title">Get movie by URL</span>
+                <p>
+                  Through this request to the api, the user gets back an
+                  specific movie, specified by its URL identifier.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="Error_handling">
+        <h2>Error handling</h2>
+        <h4>Server Errors</h4>
+        <p class="text">
+          In case of an error occurring on the server side (e.g. no connection
+          to the database) the user will receive a status code of 500. Along
+          with the status code, the produced error will be sent to the user.
+        </p>
+        <h4>Resource not found error</h4>
+        <p class="text">
+          In case the User has requested a resource that is not available on the
+          server (e.g. a movie that does not exist in the database), the server
+          will reply with a status code of 404. Along with the status code, the
+          produced error message will be sent to the user.
+        </p>
+      </section>
+
+      <section id="Collections">
+        <h2>Collections</h2>
+        <p class="text">
+          This section contains the information about database collections used
+          in our project.
+        </p>
+        <h4>Movies</h4>
+        <ol>
+          <li>
+            title: <i>string</i> <br />
+            title: given title for movie
+          </li>
+          <li>
+            rating: <i>string</i> <br />
+            title: rating for movie
+          </li>
+          <li>
+            year: <i>string</i> <br />
+            title: year of release
+          </li>
+          <li>
+            users_rating: <i>string</i> <br />
+            title: rating for movie given by users
+          </li>
+          <li>
+            votes: <i>string</i> <br />
+            title: count of votes given for movie
+          </li>
+          <li>
+            metascore: <i>string</i> <br />
+            title: metascore assigned to movie
+          </li>
+          <li>
+            img_url: <i>string</i> <br />
+            title: poster url
+          </li>
+          <li>
+            countries: <i>[string]</i> <br />
+            title: countries-of-first-Release
+          </li>
+          <li>
+            languages: <i>[string]</i> <br />
+            title: list of languages in which the movie was dubbed
+          </li>
+          <li>
+            actors: <i>[string]</i> <br />
+            title: list of actors involved in the movie
+          </li>
+          <li>
+            genres: <i>[string]</i> <br />
+            title: list of genres of the movie
+          </li>
+          <li>
+            imdb_url: <i>[string]</i> <br />
+            title: the url to the imdb page of the movie
+          </li>
+        </ol>
+      </section>
+
+      <section id="UI_implementation">
+        <h2>UI Implementation</h2>
+        <p class="text">
+          All the functionality described in this section has been implemented
+          using the Vue.js framework. <br>
+          We are using a form-like structure to get the input from user and UI components to display the output of the requested query. Such components include cards, tables or lists.<br>
+The structure of the front-end looks as follows:
+        <ol>
+          <li>Drop-down menu to select a query</li>
+          <li>Optional input fields to input the name of the actor or title of a movie</li>
+          <li>Optional radio buttons for sorting or other attributes</li>
+          <li>A checkbox button for a CSV representation of the data</li>
+          <li>Submit Button to send the query</li>
+        </ol>
+        To display the graph of the statistics, we use the link of the generated graph from quickchart.io which we display under the form. 
+        </p>
+      </section>
+
+      <section id="Extra_functionality">
+        <h2>Extra Functionality</h2>
+        <p>
+          Here we describe the additional functionality we have decided to add
+          to our web application.
+        </p>
+        <ol>
+          <li>Sub-string matching for actors names</li>
+          <li>Getting all genres query</li>
+          <li>Third party API (quickchart.io) usage for visualization of statistics</li>
+          <li>Visualisation of statistics</li>
+          <li>Additional endpoint for getting a number of random movies to watch today</li>
+        </ol>
+
+      </section>
+
+      <section id="Milestone_outcomes">
+        <h2>Milestone Outcomes</h2>
+        <p class="text">
+          In this section we describe the feedback we got for each milestone and
+          improvements we made based on that feedback.
+        </p>
+        <h3 id="Milestone_outcomes_1">M1 Outcome</h3>
+        <ol>
+          <li>
+            We changed the singular form of the nouns that we were using to
+            denote collections to plural and we have updated the routes to
+            reflect it
+          </li>
+          <li>
+            We modified the delete use case diagram, returning a 202 code
+            meaning "marked for deletion"
+          </li>
+          <li>
+            We added additional specifications on how the ascending and
+            descending order will be specified by the User
+          </li>
+          <li>
+            We added additional information for the documentation to clarify the
+            meaning of getting "one or more actors", as well as for genres
+          </li>
+          <li>We have changed the endpoints to improve readability</li>
+        </ol>
+        <h3 id="Milestone_outcomes_2">M2 Outcome</h3>
+        <ol>
+          <li>
+            The code duplication issue regarding the csv converter part in each controller was fixed by using a sigle function for each file.
+          </li>
+          <li>
+            The superfluous comments were deleted from self-explanatory components in the code.
+          </li>
+        </ol>
+        <h3 id="Milestone_outcomes_3">M3 Outcome</h3>
+      </section>
+
+      <section id="Distribution_of_work">
+        <h2>Distribution of work</h2>
+        <p class="text">
+          In this section we describe the general and particular task each
+          member had to do. <br />
+          The contribution to the report was equal for each group membeach member had to do.<br />
+          The contribution to the report was equal for each group member. We were working together on weekly sessions (3-4 hours) using Visual Studio Code Live Share extension so that we could write the code/report in parallel.        </p>
+
+      <section id="Deployment">
+        <h2>Deployment</h2>
+        <p class="text">
+          This sections describes the set of instructions that a user needs to
+          follow in order to run the current Web application.
+          <ol>
+            <li>Install mongodb locally on the platform and start it. For a guide on how to install mongodb Community Edition please visit: <a href="https://docs.mongodb.com/manual/administration/install-community/">https://docs.mongodb.com/manual/administration/install-community/</a></li>
+            <li>Download the github repository.</li>
+            <li>Go to: <a href="https://www.kaggle.com/gorochu/complete-imdb-movies-dataset">https://www.kaggle.com/gorochu/complete-imdb-movies-dataset</a> and download the files(the movie.csv file and movie.json folder), then copy those inside the local repository on your machine into a new folder called <b>datasets.</b></li>
+            <li>Run "npm install" in an terminal inside the root directory of this repository and inside the <i>/frontend/webeng-app/</i> folder.</li>
+            <li>To start the app run the command <b>npm run full</b> inside the root directory.</li>
+          </ol>
+        </p>
+      </section>
+
+      <section id="Changelog">
+        <h2>Changelog</h2>
+        <p class="text">
+          This section contains the changes of the report during the development
+          period.
+        </p>
+        <table class="striped">
+          <thead>
+            <tr>
+              <th>Version</th>
+              <th>Changes</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr>
+              <td>1.0</td>
+              <td>Changes and data of V 1.0</td>
+            </tr>
+            <tr>
+              <td>1.1</td>
+              <td>
+                Updated API requests and added responses, status codes.<br />
+                Added error handling section.<br />
+                Added querry parameters to the requests.<br />
+                Updated user requirements implementation.<br />
+                Changed PATCH request to PUT.
+              </td>
+            </tr>
+            <tr>
+              <td>1.2</td>
+              <td>
+                Plural nouns for collections<br />
+                Added feedback from the TAs<br />
+              </td>
+            </tr>
+            <tr>
+              <td>1.3</td>
+              <td>
+                Additional extras for milestone 2<br />
+                Added technologies table<br />
+              </td>
+            </tr>
+            <tr>
+              <td>1.4</td>
+              <td>
+                Additional extras for milestone 3<br />
+              </td>
+            </tr>
+            <tr>
+              <td>1.5</td>
+              <td>
+                Added the outcome for milestone 2<br />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </body>
+  <script src="materialize/js/materialize.js"></script>
+</html>
